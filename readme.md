@@ -1,5 +1,13 @@
 # Vefforritun 2, 2023, verkefni 3: kennsluskráar vefþjónustur
 
+Sýnilausn á verkefni 3
+
+```bash
+createdb vef2-2023-v3
+```
+
+---
+
 Verkefnið er framhald af verkefni 1 og snýst um að útbúa vefþjónustur ofan á „okkar eigin kennsluskrá“.
 
 ## Markmið
@@ -63,11 +71,13 @@ Um gögnin gildir:
   - Lýsingu, ekki tómur strengur.
 - Áfangi verður að eiga:
   - Númer sem er einstakt, ekki þarf að staðfesta form þess sérstaklega, aðeins að það sé ekki tómi strengurinn.
-  - Heiti sem er einstakt.
-  - Einingar sem er rauntala.
+  - Heiti sem er einstakt. Út frá titli skal útbúa `slug` sem er notaður til að vísa í og sækja áfanga.
+  - Einingar sem er rauntala, stærri en 0.
   - Kennslumisseri skal aðeins vera `Vor`, `Sumar`, `Haust` eða `Heilsárs`.
   - Námsstig, valfrjálst strengur.
   - Slóð í kennsluskrá, valfrjáls strengur (ekki þarf að staðfesta að gild slóð.)
+
+Gögn sem gefin eru í verkefni 1 innihalda áfanga sem uppfylla þetta ekki (númer og heiti er ekki einstakt og myndu þurfa flóknari _primary_ lykil) og skal sleppa þeim áföngum þar sem áður var kominn áfangi með sama númer eða titil.
 
 ### TypeScript
 
