@@ -1,5 +1,6 @@
 import pg from 'pg';
-import { Course, Department } from '../types';
+import { Course, Department } from '../types.js';
+import { departmentMapper, departmentsMapper } from './mappers.js';
 
 let savedPool: pg.Pool | undefined;
 
@@ -51,28 +52,104 @@ export async function query(
   }
 }
 
+export async function conditionalUpdate(
+  table: 'department' | 'course',
+  id: number,
+  fields: Array<string | null>,
+  values: Array<string | number | null>,
+) {
+  const filteredFields = fields.filter((i) => typeof i === 'string');
+  const filteredValues = values.filter(
+    (i): i is string | number => typeof i === 'string' || typeof i === 'number',
+  );
+
+  if (filteredFields.length === 0) {
+    return false;
+  }
+
+  if (filteredFields.length !== filteredValues.length) {
+    throw new Error('fields and values must be of equal length');
+  }
+
+  // id is field = 1
+  const updates = filteredFields.map((field, i) => `${field} = $${i + 2}`);
+
+  const q = `
+    UPDATE ${table}
+      SET ${updates.join(', ')}
+    WHERE
+      id = $1
+    RETURNING *
+    `;
+
+  const queryValues: Array<string | number> = (
+    [id] as Array<string | number>
+  ).concat(filteredValues);
+  const result = await query(q, queryValues);
+
+  return result;
+}
+
 export async function poolEnd() {
   const pool = getPool();
   await pool.end();
 }
 
+export async function getDepartments(): Promise<Array<Department>> {
+  const result = await query('SELECT * FROM department');
+
+  if (!result) {
+    return [];
+  }
+
+  const departments = departmentsMapper(result.rows).map((d) => {
+    delete d.courses;
+    return d;
+  });
+
+  return departments;
+}
+
+export async function getDepartmentBySlug(
+  slug: string,
+): Promise<Department | null> {
+  const result = await query('SELECT * FROM department WHERE slug = $1', [
+    slug,
+  ]);
+
+  if (!result) {
+    return null;
+  }
+
+  const department = departmentMapper(result.rows[0]);
+
+  return department;
+}
+
+export async function deleteDepartmentBySlug(slug: string): Promise<boolean> {
+  const result = await query('DELETE FROM department WHERE slug = $1', [slug]);
+
+  if (!result) {
+    return false;
+  }
+
+  return result.rowCount === 1;
+}
+
 export async function insertDepartment(
-  department: Department,
+  department: Omit<Department, 'id'>,
   silent = false,
-): Promise<number | null> {
+): Promise<Department | null> {
   const { title, slug, description } = department;
   const result = await query(
-    'INSERT INTO department (title, slug, description) VALUES ($1, $2, $3) RETURNING id',
+    'INSERT INTO department (title, slug, description) VALUES ($1, $2, $3) RETURNING id, title, slug, description, created, updated',
     [title, slug, description],
     silent,
   );
 
-  const id = result?.rows?.[0]?.id;
-  if (typeof id !== 'number') {
-    return null;
-  }
+  const mapped = departmentMapper(result?.rows[0]);
 
-  return id;
+  return mapped;
 }
 
 export async function insertCourse(

@@ -37,15 +37,15 @@ Deildir:
 - `POST /departments` býr til nýja deild:
   - `200 OK` skilað ásamt upplýsingum um deild.
   - `400 Bad Request` skilað ef gögn sem send inn eru ekki rétt (vantar gögn, gögn á röngu formi eða innihald þeirra ólöglegt).
-  - `PATCH /departments/:slug` uppfærir deild:
-    - `200 OK` skilað með uppfærðri deild ef gekk.
-    - `400 Bad Request` skilað ef gögn sem send inn eru ekki rétt.
-    - `404 Not Found` skilað ef deild er ekki til.
-    - `500 Internal Error` skilað ef villa kom upp.
-  - `DELETE /departments/:slug` eyðir deild:
-    - `204 No Content` skilað ef gekk.
-    - `404 Not Found` skilað ef deild er ekki til.
-    - `500 Internal Error` skilað ef villa kom upp.
+- `PATCH /departments/:slug` uppfærir deild:
+  - `200 OK` skilað með uppfærðri deild ef gekk.
+  - `400 Bad Request` skilað ef gögn sem send inn eru ekki rétt.
+  - `404 Not Found` skilað ef deild er ekki til.
+  - `500 Internal Error` skilað ef villa kom upp.
+- `DELETE /departments/:slug` eyðir deild:
+  - `204 No Content` skilað ef gekk.
+  - `404 Not Found` skilað ef deild er ekki til.
+  - `500 Internal Error` skilað ef villa kom upp.
 
 Áfangar:
 
@@ -90,6 +90,8 @@ Setja þarf upp `eslint` og `jest` eins og í fyrri verkefnum. Setja skal `eslin
 Setja skal upp a.m.k. fimm test sem prófa vefþjónustur _keyrandi_, sjá [dæmi í verkefni 3 frá 2022](https://github.com/vefforritun/vef2-2022-v3-synilausn/tree/main/src/test/integration) og í [sýnilausn að hópverkefni 1 frá 2021](https://github.com/vefforritun/vef2-2021-h1-synilausn/tree/main/src/tests).
 
 Aðeins skal nota ECMAScript modules (ESM) og ekki CommonJS.
+
+Leyfilegt er að nota ORM (t.d. [Prisma](https://www.prisma.io/)) við lausn á verkefninu.
 
 ## Gefinn grunnur
 
@@ -142,3 +144,6 @@ Skil skulu innihalda:
 | Útgáfa | Breyting      |
 | ------ | ------------- |
 | 0.1    | Fyrsta útgáfa |
+
+$$
+$$

@@ -1,13 +1,13 @@
 import slugify from 'slugify';
-import type { Course, Department } from '../types.js';
-import { valueToSementer } from '../types.js';
+import { valueToSementer } from '../lib/mappers.js';
+import type { Course, DepartmentImport } from '../types.js';
 
 /**
  * Parse JSON data representing index files.
  * @param input string with JSON data
  * @returns parsed list of files
  */
-export function parseJson(input: string): Array<Department> {
+export function parseJson(input: string): Array<DepartmentImport> {
   let parsed: unknown;
   try {
     parsed = JSON.parse(input);
@@ -20,9 +20,9 @@ export function parseJson(input: string): Array<Department> {
     return [];
   }
 
-  const items: Array<Department> = [];
+  const items: Array<DepartmentImport> = [];
   for (const i of parsed) {
-    const item = i as Partial<Department>;
+    const item = i as Partial<DepartmentImport>;
     if (!item.title || !item.description || !item.csv) {
       console.warn('missing required properties in JSON');
     } else {

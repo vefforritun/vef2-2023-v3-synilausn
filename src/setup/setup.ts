@@ -3,6 +3,7 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 
 import { insertCourse, insertDepartment, poolEnd, query } from '../lib/db.js';
+import { Department } from '../types.js';
 import { parseCsv, parseJson } from './parse.js';
 
 dotenv.config();
@@ -54,9 +55,16 @@ async function setup() {
     // console.info('parsing', item.csv);
     const courses = parseCsv(csvFile);
 
-    const departmentId = await insertDepartment(item, false);
+    const department: Omit<Department, 'id'> = {
+      title: item.title,
+      slug: item.slug,
+      description: item.description,
+      courses: [],
+    };
 
-    if (!departmentId) {
+    const insertedDept = await insertDepartment(department, false);
+
+    if (!insertedDept) {
       console.error('unable to insert department', item);
       continue;
     }
@@ -65,7 +73,7 @@ async function setup() {
     let invalidInserts = 0;
 
     for (const course of courses) {
-      const id = await insertCourse(course, departmentId, true);
+      const id = await insertCourse(course, insertedDept.id, true);
       if (id) {
         validInserts++;
       } else {
