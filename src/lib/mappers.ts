@@ -1,6 +1,7 @@
 import {
   ALLOWED_SEMESTERS,
   Course,
+  CourseDb,
   Department,
   Links,
   Semester,
@@ -13,16 +14,16 @@ export function valueToSementer(value: unknown): Semester | undefined {
 }
 
 export function courseMapper(potentialCourse: unknown): Course | null {
-  const course = potentialCourse as Partial<Course> | null;
+  const course = potentialCourse as CourseDb | null;
 
-  if (!course || !course.courseId || !course.title || !course.slug) {
+  if (!course || !course.course_id || !course.title) {
     return null;
   }
 
   const mapped: Course = {
-    courseId: course.courseId,
+    id: course.id,
+    courseId: course.course_id,
     title: course.title,
-    slug: course.slug,
     units: course.units ?? undefined,
     semester: valueToSementer(course.semester) ?? undefined,
     level: course.level ?? undefined,
@@ -39,7 +40,7 @@ export function coursesMapper(potentialCourses: unknown): Array<Course> {
     return [];
   }
 
-  console.log('courses :>> ', courses);
+  console.log('courses :>> ', courses.length);
 
   const mapped = courses.map(courseMapper);
 

@@ -40,12 +40,11 @@ export const ALLOWED_SEMESTERS = ['Vor', 'Sumar', 'Haust', 'Heilsárs'] as const
 export type Semester = typeof ALLOWED_SEMESTERS[number];
 
 export type Course = {
+  id: number;
   /** Course ID. */
   courseId: string;
   /** Title of the course. */
   title: string;
-  /** Slug of the course. */
-  slug: string;
   /** Units for finishing course. */
   units?: number;
   /** Semester the course is taught. */
@@ -53,5 +52,16 @@ export type Course = {
   /** Level of the course. */
   level?: string;
   /** URL to the course. */
+  url?: string;
+};
+
+export type CourseDb = {
+  id: number;
+  course_id: string;
+  department_id: number;
+  title: string;
+  units: number;
+  semester: Semester;
+  level?: string;
   url?: string;
 };

@@ -2,8 +2,13 @@ import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import slugify from 'slugify';
 import xss from 'xss';
+import { ALLOWED_SEMESTERS } from '../types.js';
 
-import { getDepartmentBySlug } from './db.js';
+import {
+  getCourseByCourseId,
+  getCourseByTitle,
+  getDepartmentBySlug,
+} from './db.js';
 
 /**
  * Checks to see if there are validation errors or returns next middlware if not.
@@ -69,19 +74,70 @@ export const xssSanitizerMany = (params: string[]) =>
 
 export const genericSanitizer = (param: string) => body(param).trim().escape();
 
-export const titleValidator = body('title')
-  .trim()
-  .isLength({ min: 1, max: 64 })
-  .withMessage('title is required, max 64 characters');
+export const genericSanitizerMany = (params: string[]) =>
+  params.map((param) => genericSanitizer(param));
 
-export const descriptionValidator = body('description')
-  .isLength({ max: 1000 })
-  .withMessage('description max 1000 characters');
+export const stringValidator = ({
+  field = '',
+  valueRequired = true,
+  maxLength = 0,
+  optional = false,
+} = {}) => {
+  const val = body(field)
+    .trim()
+    .isString()
+    .isLength({
+      min: valueRequired ? 1 : undefined,
+      max: maxLength ? maxLength : undefined,
+    })
+    .withMessage(
+      [
+        field,
+        valueRequired ? 'required' : '',
+        maxLength ? `max ${maxLength} characters` : '',
+      ]
+        .filter((i) => Boolean(i))
+        .join(' '),
+    );
+
+  if (optional) {
+    return val.optional();
+  }
+  return val;
+};
+
+export const semesterValidator = ({ field = '', optional = false } = {}) => {
+  const val = body(field)
+    .isIn(ALLOWED_SEMESTERS)
+    .withMessage(`${field} must be one of: ${ALLOWED_SEMESTERS.join(', ')}`);
+  if (optional) {
+    return val.optional();
+  }
+  return val;
+};
 
 export const departmentDoesNotExistValidator = body('title').custom(
   async (title) => {
     if (await getDepartmentBySlug(slugify(title))) {
       return Promise.reject(new Error('department with title already exists'));
+    }
+    return Promise.resolve();
+  },
+);
+
+export const courseTitleDoesNotExistValidator = body('title').custom(
+  async (title) => {
+    if (await getCourseByTitle(title)) {
+      return Promise.reject(new Error('course with title already exists'));
+    }
+    return Promise.resolve();
+  },
+);
+
+export const courseIdDoesNotExistValidator = body('courseId').custom(
+  async (courseId) => {
+    if (await getCourseByCourseId(courseId)) {
+      return Promise.reject(new Error('course with courseId already exists'));
     }
     return Promise.resolve();
   },

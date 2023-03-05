@@ -1,6 +1,11 @@
 import pg from 'pg';
 import { Course, Department } from '../types.js';
-import { departmentMapper, departmentsMapper } from './mappers.js';
+import {
+  courseMapper,
+  coursesMapper,
+  departmentMapper,
+  departmentsMapper,
+} from './mappers.js';
 
 let savedPool: pg.Pool | undefined;
 
@@ -153,21 +158,76 @@ export async function insertDepartment(
 }
 
 export async function insertCourse(
-  course: Course,
+  course: Omit<Course, 'id'>,
   departmentId: number,
   silent = false,
-): Promise<number | null> {
-  const { title, slug, units, semester, level, url, courseId } = course;
+): Promise<Course | null> {
+  const { title, units, semester, level, url, courseId } = course;
   const result = await query(
-    'INSERT INTO course (title, slug, units, semester, level, url, department_id, course_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
-    [title, slug, units, semester, level, url, departmentId, courseId],
+    'INSERT INTO course (title, units, semester, level, url, department_id, course_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+    [title, units, semester, level, url, departmentId, courseId],
     silent,
   );
 
-  const id = result?.rows?.[0]?.id;
-  if (typeof id !== 'number') {
+  const mapped = courseMapper(result?.rows[0]);
+
+  return mapped;
+}
+
+export async function getCoursesByDepartmentId(
+  id: number,
+): Promise<Array<Course>> {
+  const result = await query(`SELECT * FROM course WHERE department_id = $1`, [
+    id,
+  ]);
+
+  if (!result) {
+    return [];
+  }
+
+  const courses = coursesMapper(result.rows);
+
+  return courses;
+}
+
+export async function getCourseByTitle(title: string): Promise<Course | null> {
+  const result = await query(`SELECT * FROM course WHERE title = $1`, [title]);
+
+  if (!result) {
     return null;
   }
 
-  return id;
+  const course = courseMapper(result.rows[0]);
+  console.log('title, course :>> ', result.rows[0], title, course);
+  return course;
+}
+
+export async function getCourseByCourseId(
+  courseId: string,
+): Promise<Course | null> {
+  const result = await query(`SELECT * FROM course WHERE course_id = $1`, [
+    courseId,
+  ]);
+
+  if (!result) {
+    return null;
+  }
+
+  const course = courseMapper(result.rows[0]);
+
+  return course;
+}
+
+export async function deleteCourseByCourseId(
+  courseId: string,
+): Promise<boolean> {
+  const result = await query('DELETE FROM course WHERE course_id = $1', [
+    courseId,
+  ]);
+
+  if (!result) {
+    return false;
+  }
+
+  return result.rowCount === 1;
 }

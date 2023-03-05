@@ -14,7 +14,6 @@ CREATE TABLE public.course (
   course_id VARCHAR(16) NOT NULL UNIQUE,
   department_id INTEGER NOT NULL,
   title VARCHAR(64) NOT NULL UNIQUE,
-  slug VARCHAR(64) NOT NULL UNIQUE,
   units REAL NOT NULL CONSTRAINT units_check CHECK (units > 0),
   semester semester NOT NULL,
   level VARCHAR(128) DEFAULT NULL,

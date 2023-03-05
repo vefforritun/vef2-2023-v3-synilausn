@@ -11,9 +11,8 @@ import { departmentMapper } from '../lib/mappers.js';
 import {
   atLeastOneBodyValueValidator,
   departmentDoesNotExistValidator,
-  descriptionValidator,
   genericSanitizer,
-  titleValidator,
+  stringValidator,
   validationCheck,
   xssSanitizer,
 } from '../lib/validation.js';
@@ -56,14 +55,14 @@ export async function createDepartmentHandler(
 ) {
   const { title, description } = req.body;
 
-  const departmentToCreated: Omit<Department, 'id'> = {
+  const departmentToCreate: Omit<Department, 'id'> = {
     title,
     slug: slugify(title),
     description,
     courses: [],
   };
 
-  const createdDeprtment = await insertDepartment(departmentToCreated, false);
+  const createdDeprtment = await insertDepartment(departmentToCreate, false);
 
   if (!createdDeprtment) {
     return next(new Error('unable to create department'));
@@ -73,8 +72,12 @@ export async function createDepartmentHandler(
 }
 
 export const createDepartment = [
-  titleValidator,
-  descriptionValidator,
+  stringValidator({ field: 'title', maxLength: 64 }),
+  stringValidator({
+    field: 'description',
+    valueRequired: false,
+    maxLength: 1000,
+  }),
   departmentDoesNotExistValidator,
   xssSanitizer('title'),
   xssSanitizer('description'),
@@ -85,8 +88,13 @@ export const createDepartment = [
 ];
 
 export const updateDepartment = [
-  titleValidator.optional(),
-  descriptionValidator.optional(),
+  stringValidator({ field: 'title', maxLength: 64, optional: true }),
+  stringValidator({
+    field: 'description',
+    valueRequired: false,
+    maxLength: 1000,
+    optional: true,
+  }),
   atLeastOneBodyValueValidator(['title', 'description']),
   xssSanitizer('title'),
   xssSanitizer('description'),

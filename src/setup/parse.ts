@@ -38,7 +38,7 @@ export function parseJson(input: string): Array<DepartmentImport> {
   return items;
 }
 
-function parseLine(line: string): Course | null {
+function parseLine(line: string): Omit<Course, 'id'> | null {
   const [
     id = undefined,
     title = undefined,
@@ -84,7 +84,6 @@ function parseLine(line: string): Course | null {
   return {
     courseId: id,
     title,
-    slug: slugify(title),
     units,
     semester,
     level,
