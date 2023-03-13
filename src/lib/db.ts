@@ -100,11 +100,11 @@ export async function poolEnd() {
   await pool.end();
 }
 
-export async function getDepartments(): Promise<Array<Department>> {
+export async function getDepartments(): Promise<Array<Department> | null> {
   const result = await query('SELECT * FROM department');
 
   if (!result) {
-    return [];
+    return null;
   }
 
   const departments = departmentsMapper(result.rows).map((d) => {

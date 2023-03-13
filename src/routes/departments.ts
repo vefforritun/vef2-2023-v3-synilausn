@@ -68,7 +68,7 @@ export async function createDepartmentHandler(
     return next(new Error('unable to create department'));
   }
 
-  return res.json(departmentMapper(createdDeprtment));
+  return res.status(201).json(createdDeprtment);
 }
 
 export const createDepartment = [
@@ -124,7 +124,7 @@ export async function updateDepartmentHandler(
 
   const values = [
     typeof title === 'string' && title ? title : null,
-    typeof title === 'string' && title ? slugify(title) : null,
+    typeof title === 'string' && title ? slugify(title).toLowerCase() : null,
     typeof description === 'string' && description ? description : null,
   ];
 

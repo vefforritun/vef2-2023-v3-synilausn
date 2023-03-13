@@ -10,3 +10,8 @@ npm run dev # eða "npm start"
 ```
 
 Hægt að prófa request með því að importa `v3.postman.json` inn í Postman.
+
+## TODO
+
+- [ ] Test
+- [ ] `DELETE` og eyða fyrst áföngum
