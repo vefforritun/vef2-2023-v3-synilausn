@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import express, { NextFunction, Request, Response } from 'express';
+import { cors } from './lib/cors.js';
 import { router } from './routes/api.js';
 
 dotenv.config();
@@ -8,6 +9,7 @@ const app = express();
 
 app.use(express.json());
 
+app.use(cors);
 app.use(router);
 
 const port = process.env.PORT || 3000;
