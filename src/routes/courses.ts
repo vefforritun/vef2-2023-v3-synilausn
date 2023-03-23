@@ -141,8 +141,6 @@ export const updateCourse = [
     optional: true,
   }),
   atLeastOneBodyValueValidator(courseFields),
-  courseTitleDoesNotExistValidator,
-  courseIdDoesNotExistValidator,
   xssSanitizerMany(courseFields),
   validationCheck,
   genericSanitizerMany(courseFields),
