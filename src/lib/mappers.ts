@@ -7,19 +7,38 @@ import {
   Semester,
 } from '../types.js';
 
+/**
+ * Map a potential semester value to a semester. We use the `unknown` type to
+ * represent a value that we don't know the type of.
+ * @param value Potential semester value.
+ * @returns Semester or undefined if the value is not a semester.
+ */
 export function valueToSementer(value: unknown): Semester | undefined {
   const found = ALLOWED_SEMESTERS.find((s) => s === value);
 
   return found;
 }
 
+/**
+ * Map a potential course to a course.
+ * @param potentialCourse Data that might be a course.
+ * @returns Mapped course or null if the data is not a course.
+ */
 export function courseMapper(potentialCourse: unknown): Course | null {
-  const course = potentialCourse as CourseDb | null;
+  // Type cast the potential course to a Partial `CourseDb` or null.
+  // This allows us to use the optional chaining operator to safely access
+  // properties on the potential course and mapping to a course if our
+  // conditions are met.
+  const course = potentialCourse as Partial<CourseDb> | null;
 
-  if (!course || !course.course_id || !course.title) {
+  if (!course || !course.id || !course.course_id || !course.title) {
     return null;
   }
 
+  // Create exactly the course object we want to return, i.e. the mapped course.
+  // This is not perfect since we are not checking if the values are of the
+  // correct type, but we are assuming that the database returns the correct
+  // types. We should probably add some validation...
   const mapped: Course = {
     id: course.id,
     courseId: course.course_id,
@@ -33,6 +52,11 @@ export function courseMapper(potentialCourse: unknown): Course | null {
   return mapped;
 }
 
+/**
+ * Map a potential list of courses to an array of courses.
+ * @param potentialCourses Data that might be a list of courses.
+ * @returns Array of mapped courses, empty if no courses are mapped.
+ */
 export function coursesMapper(potentialCourses: unknown): Array<Course> {
   const courses = potentialCourses as Array<unknown> | null;
 
@@ -40,13 +64,19 @@ export function coursesMapper(potentialCourses: unknown): Array<Course> {
     return [];
   }
 
-  console.log('courses :>> ', courses.length);
-
   const mapped = courses.map(courseMapper);
 
+  // Filter out any null values from the mapped array using the `filter` method
+  // and a type guard function.
   return mapped.filter((i): i is Course => Boolean(i));
 }
 
+/**
+ * Map a potential department to a department.
+ * @param potentialDepartment Data that might be a department.
+ * @param potentialCourses Data that might be a list of courses.
+ * @returns Mapped department or null if the data is not a department.
+ */
 export function departmentMapper(
   potentialDepartment: unknown,
   potentialCourses?: unknown,
@@ -82,6 +112,11 @@ export function departmentMapper(
   return mapped;
 }
 
+/**
+ * Map a potential array of departments to an array of departments.
+ * @param potentialDepartments Data that might be a list of departments.
+ * @returns Array of mapped departments, empty if no departments are mapped.
+ */
 export function departmentsMapper(
   potentialDepartments: unknown,
 ): Array<Department> {
